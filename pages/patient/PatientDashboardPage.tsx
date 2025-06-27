@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Appointment, InitialFormData } from '../../types';
-import { CalendarDaysIcon, ChatBubbleLeftEllipsisIcon, DocumentTextIcon, SparklesIcon } from '../../components/icons/SolidIcons'; // Added SparklesIcon
+import { CalendarDaysIcon, ChatBubbleLeftEllipsisIcon, DocumentTextIcon, SparklesIcon } from '../../components/icons/SolidIcons';
 import { APP_NAME } from '../../constants.ts';
 
 interface PatientDashboardPageProps {
@@ -16,7 +16,7 @@ const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({ appointment
     ? [...appointments].sort((a, b) => new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime())[0]
     : null;
   
-  const patientName = latestAppointment?.name || "Valued Patient"; // More generic greeting
+  const patientName = latestAppointment?.name || "Valued Patient";
 
   return (
     <div className="space-y-8">

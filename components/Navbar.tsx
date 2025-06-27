@@ -9,7 +9,7 @@ import { Bars3Icon, XMarkIcon } from './icons/OutlineIcons';
 
 interface NavbarProps {
   userRole: UserRole;
-  onLogout: () => void; // Changed: onLogout now takes no arguments
+  onLogout: () => void;
   onOpenChatbot: () => void;
   currentPatientId: string | null;
 }
@@ -20,7 +20,6 @@ const Navbar: React.FC<NavbarProps> = ({ userRole, onLogout, onOpenChatbot, curr
 
   const filteredNavLinks = NAV_LINKS.filter(link => {
     if (link.hideWhenAuth && link.hideWhenAuth === userRole) return false;
-    // Show login link only if not logged in as any specific role
     if (link.path === '/login' && userRole !== UserRole.NONE) return false;
     return true;
   });
@@ -49,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({ userRole, onLogout, onOpenChatbot, curr
             ))}
              {userRole === UserRole.PATIENT && currentPatientId && (
               <NavLink 
-                to="/patient/dashboard" // Default to patient dashboard
+                to="/patient/dashboard"
                 className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} px-3 py-2 rounded-md text-md font-medium flex items-center`}
               >
                 <UserCircleIcon className="w-5 h-5 mr-1.5" /> My Dashboard
@@ -110,7 +109,6 @@ const Navbar: React.FC<NavbarProps> = ({ userRole, onLogout, onOpenChatbot, curr
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-gray-200">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -142,7 +140,6 @@ const Navbar: React.FC<NavbarProps> = ({ userRole, onLogout, onOpenChatbot, curr
                 Admin Panel
               </NavLink>
             )}
-            {/* Logout button is handled by top-right icon on mobile now for cleaner look, or can be added back here if preferred */}
           </div>
         </div>
       )}

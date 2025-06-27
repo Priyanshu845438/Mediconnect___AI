@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Appointment } from '../../types';
-import { CalendarDaysIcon, ChatBubbleLeftEllipsisIcon } from '../../components/icons/SolidIcons'; // Added ChatBubbleLeftEllipsisIcon
+import { CalendarDaysIcon, ChatBubbleLeftEllipsisIcon } from '../../components/icons/SolidIcons';
 import { EyeIcon } from '../../components/icons/OutlineIcons'; 
 
 interface PatientBookingsPageProps {
@@ -23,24 +23,24 @@ const PatientBookingsPage: React.FC<PatientBookingsPageProps> = ({ appointments 
   };
 
   return (
-    <div className="space-y-8"> {/* Increased space */}
-      <header className="bg-white shadow-xl rounded-xl p-6 sm:p-8"> {/* Increased padding and shadow */}
+    <div className="space-y-8">
+      <header className="bg-white shadow-xl rounded-xl p-6 sm:p-8">
         <div className="flex items-center">
             <div className="p-3 bg-primary/10 rounded-full mr-4">
-                <CalendarDaysIcon className="w-10 h-10 text-primary" /> {/* Larger icon */}
+                <CalendarDaysIcon className="w-10 h-10 text-primary" />
             </div>
             <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-primary">My Bookings</h1> {/* Larger title */}
+                <h1 className="text-3xl sm:text-4xl font-bold text-primary">My Bookings</h1>
                 <p className="text-gray-600 mt-1">Review your past and upcoming appointments.</p>
             </div>
         </div>
       </header>
 
       {sortedAppointments.length > 0 ? (
-        <div className="bg-white shadow-xl rounded-xl p-0 overflow-hidden"> {/* Increased shadow */}
+        <div className="bg-white shadow-xl rounded-xl p-0 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100"> {/* Header background */}
+              <thead className="bg-gray-100">
                 <tr>
                   <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date & Time</th>
                   <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Symptom / Reason</th>
@@ -50,11 +50,11 @@ const PatientBookingsPage: React.FC<PatientBookingsPageProps> = ({ appointments 
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {sortedAppointments.map((app) => (
-                  <tr key={app.id} className="hover:bg-teal-50/50 transition-colors duration-150"> {/* Softer hover */}
+                  <tr key={app.id} className="hover:bg-teal-50/50 transition-colors duration-150"> 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{new Date(app.bookingDate).toLocaleString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{app.symptom}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${app.paymentStatus === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}> {/* Increased padding in badge */}
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${app.paymentStatus === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}> 
                         {app.paymentStatus}
                       </span>
                     </td>
@@ -74,8 +74,8 @@ const PatientBookingsPage: React.FC<PatientBookingsPageProps> = ({ appointments 
           </div>
         </div>
       ) : (
-        <div className="bg-white shadow-xl rounded-xl p-10 text-center"> {/* Increased shadow and padding */}
-          <ChatBubbleLeftEllipsisIcon className="w-20 h-20 text-gray-300 mx-auto mb-6" /> {/* Changed icon */}
+        <div className="bg-white shadow-xl rounded-xl p-10 text-center"> 
+          <ChatBubbleLeftEllipsisIcon className="w-20 h-20 text-gray-300 mx-auto mb-6" /> 
           <h2 className="text-2xl font-semibold text-dark mb-3">No Appointments Found</h2>
           <p className="text-gray-600 max-w-md mx-auto mb-8">
             It seems you haven't booked any appointments yet. Our AI assistant is ready to help you schedule your first consultation.

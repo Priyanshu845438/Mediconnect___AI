@@ -10,20 +10,20 @@ interface AdminSidebarProps {
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ onLogout }) => {
   const navigate = useNavigate(); 
-  const activeClassName = "bg-primary text-white shadow-md border-l-4 border-accent"; // Enhanced active style
-  const inactiveClassName = "text-gray-700 hover:bg-teal-50 hover:text-primary border-l-4 border-transparent"; // Enhanced inactive and hover
+  const activeClassName = "bg-primary text-white shadow-md border-l-4 border-accent";
+  const inactiveClassName = "text-gray-700 hover:bg-teal-50 hover:text-primary border-l-4 border-transparent";
 
   return (
-    <aside className="w-full md:w-72 bg-white shadow-xl md:min-h-screen flex flex-col flex-shrink-0"> {/* Increased width and shadow */}
+    <aside className="w-full md:w-72 bg-white shadow-xl md:min-h-screen flex flex-col flex-shrink-0"> 
       <div className="p-6 border-b border-gray-200">
-         <div className="flex items-center space-x-4"> {/* Increased spacing */}
-            <UserCircleIcon className="h-14 w-14 text-primary rounded-full bg-teal-100 p-2 ring-2 ring-primary/50" /> {/* Larger icon, softer ring */}
+         <div className="flex items-center space-x-4"> 
+            <UserCircleIcon className="h-14 w-14 text-primary rounded-full bg-teal-100 p-2 ring-2 ring-primary/50" />
             <div>
-                <h2 className="text-2xl font-bold text-primary">Admin Panel</h2> {/* Bolder, larger title */}
+                <h2 className="text-2xl font-bold text-primary">Admin Panel</h2> 
             </div>
         </div>
       </div>
-      <nav className="flex-grow py-4 px-3 space-y-1"> {/* Added space-y for links */}
+      <nav className="flex-grow py-4 px-3 space-y-1"> 
         {ADMIN_SIDEBAR_LINKS.map(link => (
           <NavLink
             key={link.name}

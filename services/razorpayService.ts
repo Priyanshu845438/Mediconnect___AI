@@ -4,7 +4,7 @@ import { RazorpayOptions, RazorpayPaymentSuccessResponse } from '../types';
 
 declare global {
   interface Window {
-    Razorpay: any; // Define Razorpay on window
+    Razorpay: any; 
   }
 }
 
@@ -44,7 +44,7 @@ interface PaymentConfig {
 }
 
 export const initiateRazorpayPayment = (config: PaymentConfig): void => {
-  if (RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_ID') { // This specific check is fine to keep as a general placeholder warning.
+  if (RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_ID') { 
     console.warn(
       `%c[${APP_NAME} Warning] Razorpay is using a PLACEHOLDER Key ID ('rzp_test_YOUR_KEY_ID'). 
       Please replace this in 'constants.ts' with your actual Razorpay test or live key ID for payments to function correctly.`,
@@ -62,7 +62,7 @@ export const initiateRazorpayPayment = (config: PaymentConfig): void => {
     key: RAZORPAY_KEY_ID,
     amount: config.amount,
     currency: config.currency,
-    name: `${APP_NAME} Clinic`, // Updated clinic name
+    name: `${APP_NAME} Clinic`,
     description: config.description,
     image: "https://picsum.photos/seed/logo/128/128", 
     handler: function (response: RazorpayPaymentSuccessResponse) {
@@ -82,7 +82,6 @@ export const initiateRazorpayPayment = (config: PaymentConfig): void => {
     modal: {
         ondismiss: function() {
             console.log("Razorpay modal.ondismiss event triggered.");
-            // This is called when the user closes the payment modal manually OR if Razorpay closes it due to an error.
             config.onFailure("Payment window was dismissed. If this was not intentional (e.g., it closed automatically), please verify your Razorpay key ID in 'constants.ts' is correct for the environment (test/live) and try again. Contact support if issues persist.");
         }
     }

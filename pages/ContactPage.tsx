@@ -51,7 +51,6 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Map Placeholder */}
         <div className="mt-16 md:mt-24 h-96 bg-gray-300 rounded-xl shadow-lg flex items-center justify-center">
             <p className="text-gray-500 text-xl">Embedded Map Placeholder (e.g., Google Maps)</p>
         </div>

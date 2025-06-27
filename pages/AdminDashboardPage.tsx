@@ -58,7 +58,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ appointments })
     if (sortConfig.key === key) {
       return sortConfig.direction === 'ascending' ? '▲' : '▼';
     }
-    return '↕'; // Default sort indicator for unsorted columns
+    return '↕'; 
   };
 
   const handleViewAppointment = (appointment: Appointment) => {
@@ -72,8 +72,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ appointments })
         <p className="text-gray-600 mt-1">Manage patient appointments and site data efficiently.</p>
       </header>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> {/* Changed to 3 columns for better fit */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-primary/20 transition-all duration-300 transform hover:-translate-y-1">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold text-dark">Total Appointments</h3>
@@ -96,14 +95,14 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ appointments })
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold text-dark">Pending Payments</h3>
             <div className="p-2 bg-yellow-500/10 rounded-full">
-                <ClockIcon className="w-6 h-6 text-yellow-500" /> {/* Changed icon to ClockIcon (Solid) */}
+                <ClockIcon className="w-6 h-6 text-yellow-500" />
             </div>
           </div>
           <p className="text-4xl font-bold text-yellow-500">{appointments.filter(a => a.paymentStatus === 'pending').length}</p>
         </div>
       </div>
       
-      <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl"> {/* Increased padding */}
+      <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl"> 
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
           <h2 className="text-2xl font-semibold text-dark">Appointments List</h2>
           <div className="relative w-full sm:w-auto">
@@ -119,7 +118,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ appointments })
         </div>
 
         {paginatedAppointments.length > 0 ? (
-          <div className="overflow-x-auto rounded-lg border border-gray-200"> {/* Added border around table container */}
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
@@ -166,18 +165,18 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ appointments })
           </div>
         ) : (
           <div className="text-center text-gray-500 py-12">
-             <ListBulletIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" /> {/* Changed icon */}
+             <ListBulletIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
              <p className="text-lg">No appointments found.</p>
              <p className="text-sm mt-1">Try adjusting your search terms or wait for new bookings.</p>
           </div>
         )}
 
         {totalPages > 1 && (
-          <div className="mt-8 flex flex-col sm:flex-row justify-between items-center"> {/* Increased top margin */}
+          <div className="mt-8 flex flex-col sm:flex-row justify-between items-center"> 
             <span className="text-sm text-gray-700 mb-3 sm:mb-0">
               Showing <span className="font-semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> to <span className="font-semibold">{Math.min(currentPage * ITEMS_PER_PAGE, filteredAppointments.length)}</span> of <span className="font-semibold">{filteredAppointments.length}</span> results
             </span>
-            <div className="inline-flex mt-2 sm:mt-0 shadow-md rounded-lg"> {/* Added shadow and rounded-lg to parent */}
+            <div className="inline-flex mt-2 sm:mt-0 shadow-md rounded-lg"> 
               <button 
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
                 disabled={currentPage === 1}

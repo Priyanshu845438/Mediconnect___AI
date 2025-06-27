@@ -50,8 +50,7 @@ const AboutPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Team Section Placeholder */}
-        <section className="py-16 text-center"> {/* Removed nested container */}
+        <section className="py-16 text-center">
           <h2 className="text-3xl font-bold text-dark mb-12">Meet Our Team (Placeholder)</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {[1,2,3,4].map(i => (

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ADMIN_CREDENTIALS, APP_NAME, MOCKED_PATIENT_PASSWORD } from '../constants.ts';
 import { UserRole } from '../types';
 import { getAppointments } from '../services/localStorageService';
-import { UserCircleIcon } from '../components/icons/SolidIcons'; // Changed to SolidIcons
+import { UserCircleIcon } from '../components/icons/SolidIcons'; 
 import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon } from '../components/icons/OutlineIcons';
 
 interface LoginPageProps {
@@ -35,7 +35,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         setError('Email and password are required.');
         return;
       }
-      // Mock patient login
+
       const appointments = getAppointments();
       const patientAppointment = appointments.find(app => app.email.toLowerCase() === email.toLowerCase());
 
@@ -69,7 +69,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             </label>
             <div className="flex space-x-4">
               {(Object.keys(UserRole) as Array<keyof typeof UserRole>)
-                .filter(role => UserRole[role] !== UserRole.NONE) // Exclude NONE role from options
+                .filter(role => UserRole[role] !== UserRole.NONE)
                 .map(roleKey => (
                   <button
                     key={UserRole[roleKey]}

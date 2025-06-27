@@ -1,9 +1,8 @@
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Modal from './Modal';
 import { ChatMessage, InitialFormData, Appointment, ChatOption } from '../types';
 import { PaperAirplaneIcon, CalendarDaysIcon, MapPinIcon as MapPinIconSolid, ChatBubbleLeftEllipsisIcon as SupportIcon } from './icons/SolidIcons';
-import { APP_NAME, APPOINTMENT_FEE, MOCK_NEARBY_HOSPITALS, BOT_GREETING_MESSAGE, WHATSAPP_SUPPORT_NUMBER, MOCKED_PATIENT_PASSWORD } from '../constants.ts'; // Added MOCKED_PATIENT_PASSWORD
+import { APP_NAME, APPOINTMENT_FEE, BOT_GREETING_MESSAGE, WHATSAPP_SUPPORT_NUMBER, MOCKED_PATIENT_PASSWORD } from '../constants.ts'; // Added MOCKED_PATIENT_PASSWORD
 import { saveAppointment } from '../services/localStorageService';
 import { loadRazorpayScript, initiateRazorpayPayment } from '../services/razorpayService';
 // import { MINOR_DISEASES_DATA } from '../data/minorDiseases.ts';
@@ -46,6 +45,17 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+        const checkDiseaseFromAPI = async (symptoms: string[]) => {
+      const response = await fetch("http://127.0.0.1:8000/checkdisease/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ noofsym: symptoms.length, symptoms }),
+      });
+      console.log("API Response:", response);
+      if (!response.ok) throw new Error("Failed to fetch prediction");
+
+      return response.json();
+    };
 
   useEffect(scrollToBottom, [messages, isBotTyping]);
 
@@ -84,120 +94,183 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]); 
 
-  const handleBookingIntent = (symptom?: string) => {
-    const details = {...(tentativeAppointmentDetails || {}), ...(initialData || {})};
-    if (symptom && !details.symptom) {
+    const handleBookingIntent = (symptom?: string) => {
+      const details = { ...(tentativeAppointmentDetails || {}), ...(initialData || {}) };
+
+      if (symptom && !details.symptom) {
         details.symptom = symptom;
-        setTentativeAppointmentDetails(d => ({...d, symptom}));
-    }
+        setTentativeAppointmentDetails(d => ({ ...d, symptom }));
+      }
 
-    const missingFields = [];
-    if (!details.name) missingFields.push("name");
-    if (!details.email) missingFields.push("email");
-    if (!details.phone) missingFields.push("phone");
-    if (!details.symptom) missingFields.push("symptom(s)");
+      const missingFields = [];
+      if (!details.name) missingFields.push("name");
+      if (!details.email) missingFields.push("email");
+      if (!details.phone) missingFields.push("phone");
+      if (!details.symptom) missingFields.push("symptom(s)");
 
-    if (missingFields.length > 0) {
-      return { 
-        responseText: `Sure, I can help with that. To book an appointment, I need your ${missingFields.join(", ")}. Please provide these details.`,
+      if (missingFields.length > 0) {
+        return {
+          responseText: `Sure, I can help with that. To book an appointment, I need your ${missingFields.join(", ")}. Please provide these details.`,
+          nextState: ChatState.AWAITING_USER_INPUT
+        };
+      }
+
+      const symptomText = details.symptom ? `for ${details.symptom}` : "for a general consultation";
+      return {
+        responseText: `Okay, ${details.name}. To confirm your appointment ${symptomText}, a nominal consultation fee of ${APPOINTMENT_FEE / 100} INR is required. Would you like to proceed with the payment?`,
+        nextState: ChatState.AWAITING_PAYMENT_CONFIRMATION,
+        options: [{
+          text: `Pay ${APPOINTMENT_FEE / 10000} INR and Book`,
+          action: () => handlePayment()
+        }]
+      };
+    };
+
+const processUserMessage = async (text: string): Promise<{ responseText: string; nextState?: ChatState; options?: ChatOption[] }> => {
+  const lowerText = text.toLowerCase();
+  const knownSymptoms = ["fever", "cough", "headache", "vomiting", "diarrhea", "chest pain"]; // extend as needed
+  const matchedSymptoms = knownSymptoms.filter(symptom => lowerText.includes(symptom.toLowerCase()));
+
+  // Predict disease using API if any symptoms match
+  if (matchedSymptoms.length > 0) {
+    try {
+      setIsBotTyping(true);
+      const result = await checkDiseaseFromAPI(matchedSymptoms);
+      setIsBotTyping(false);
+
+      const responseText =
+        `Based on your symptom, it might be **${result.predicteddisease}**.\n` +
+        `Confidence Score: ${result.confidencescore}\n` +
+        `Please consult a **${result.consultdoctor}**.\n\n` +
+        `Would you like to book an appointment for this condition?`;
+
+      if (!tentativeAppointmentDetails?.symptom) {
+        setTentativeAppointmentDetails(prev => ({ ...prev, symptom: result.predicteddisease }));
+      }
+
+      return {
+        responseText,
+        nextState: ChatState.AWAITING_USER_INPUT,
+        options: [{
+          text: "Yes, book appointment",
+          action: () => {
+            const bookingResponse = handleBookingIntent(result.predicteddisease);
+            addMessageToChat(bookingResponse.responseText, 'bot', bookingResponse.options);
+            if (bookingResponse.nextState) setCurrentChatState(bookingResponse.nextState);
+          }
+        }]
+      };
+    } catch (err) {
+      console.error("API Error:", err);
+      setIsBotTyping(false);
+      return {
+        responseText: "I couldn't process your symptoms at the moment. Please try again shortly.",
         nextState: ChatState.AWAITING_USER_INPUT
       };
     }
-    const symptomText = details.symptom ? `for ${details.symptom}` : "for a general consultation";
+  }
+
+  // Fallback to manual MAJOR_DISEASES_DATA
+  // for (const disease of MAJOR_DISEASES_DATA) {
+  //   if (disease.keywords.some(keyword => lowerText.includes(keyword.toLowerCase()))) {
+  //     const matchedKeyword = disease.keywords.find(kw => lowerText.includes(kw.toLowerCase())) || "your stated concern";
+  //     const responseText = disease.response.replace("[matched keyword]", matchedKeyword);
+
+  //     if (!tentativeAppointmentDetails?.symptom && initialData?.symptom !== matchedKeyword) {
+  //       setTentativeAppointmentDetails(prev => ({ ...prev, symptom: matchedKeyword }));
+  //     }
+
+  //     if (disease.offerBooking) {
+  //       return {
+  //         responseText,
+  //         nextState: ChatState.AWAITING_USER_INPUT,
+  //         options: [{
+  //           text: "Yes, help me book an appointment",
+  //           action: () => {
+  //             const bookingResponse = handleBookingIntent(matchedKeyword);
+  //             addMessageToChat(bookingResponse.responseText, 'bot', bookingResponse.options);
+  //             if (bookingResponse.nextState) setCurrentChatState(bookingResponse.nextState);
+  //           }
+  //         }]
+  //       };
+  //     }
+
+  //     return { responseText, nextState: ChatState.AWAITING_USER_INPUT };
+  //   }
+  // }
+
+  // // 🔁 MINOR diseases
+  // for (const disease of MINOR_DISEASES_DATA) {
+  //   if (disease.keywords.some(keyword => lowerText.includes(keyword.toLowerCase()))) {
+  //     const matchedKeyword = disease.keywords.find(kw => lowerText.includes(kw.toLowerCase()));
+  //     if (matchedKeyword && !tentativeAppointmentDetails?.symptom && !initialData?.symptom) {
+  //       setTentativeAppointmentDetails(prev => ({ ...prev, symptom: matchedKeyword }));
+  //     }
+  //     return { responseText: disease.response, nextState: ChatState.AWAITING_USER_INPUT };
+  //   }
+  // }
+
+  const details = { ...(tentativeAppointmentDetails || {}), ...(initialData || {}) };
+
+  if (lowerText.includes("hello") || lowerText.includes("hi") || lowerText.includes("hey")) {
+    return { responseText: "Hello there! How can I help you today?", nextState: ChatState.AWAITING_USER_INPUT };
+  }
+
+  if (lowerText.includes("book appointment") || lowerText.includes("schedule visit") || lowerText.includes("make an appointment")) {
+    return handleBookingIntent();
+  }
+
+  let detailProvided = false;
+  if (!details.name && (lowerText.includes("my name is") || (lowerText.split(" ").length < 5 && messages.length > 1 && messages[messages.length - 1].text.toLowerCase().includes("name")))) {
+    const nameGuess = lowerText.replace("my name is", "").trim();
+    setTentativeAppointmentDetails(prev => ({ ...prev, name: nameGuess }));
+    detailProvided = true;
+  }
+  if (!details.email && (lowerText.includes("my email is") || lowerText.includes("@"))) {
+    setTentativeAppointmentDetails(prev => ({ ...prev, email: text.trim() }));
+    detailProvided = true;
+  }
+  if (!details.phone && (lowerText.includes("my phone is") || lowerText.match(/\d{10}/))) {
+    setTentativeAppointmentDetails(prev => ({ ...prev, phone: text.trim() }));
+    detailProvided = true;
+  }
+  if (!details.symptom && (lowerText.includes("my symptom is") || lowerText.includes("experiencing"))) {
+    setTentativeAppointmentDetails(prev => ({ ...prev, symptom: text.replace("my symptom is", "").replace("experiencing", "").trim() }));
+    detailProvided = true;
+  }
+
+  if (detailProvided) {
     return {
-      responseText: `Okay, ${details.name}. To confirm your appointment ${symptomText}, a nominal consultation fee of ${APPOINTMENT_FEE / 100} INR is required. Would you like to proceed with the payment?`,
-      nextState: ChatState.AWAITING_PAYMENT_CONFIRMATION,
-      options: [{ text: `Pay ${APPOINTMENT_FEE / 10000} INR and Book`, action: () => handlePayment() }]
+      responseText: "Thanks for the information. If all details are provided (Name, Email, Phone, Symptom), you can now say 'book appointment' or use the button to proceed.",
+      nextState: ChatState.AWAITING_USER_INPUT
     };
+  }
+
+  if (lowerText.includes("nearby hospital") || lowerText.includes("hospital near me") || lowerText.includes("hospitals")) {
+    const hospitalList = MOCK_NEARBY_HOSPITALS.map(h => `- ${h.name} (${h.address})`).join('\n');
+    return {
+      responseText: `Here are some hospitals in the general area:\n${hospitalList}\n\nFor exact locations, please use map services.`,
+      nextState: ChatState.AWAITING_USER_INPUT
+    };
+  }
+
+  if (currentChatState === ChatState.AWAITING_PAYMENT_CONFIRMATION) {
+    if (lowerText.includes("yes") || lowerText.includes("proceed") || lowerText.includes("ok") || lowerText.includes("pay")) {
+      handlePayment();
+      return { responseText: "Great! Proceeding to payment..." };
+    } else if (lowerText.includes("no") || lowerText.includes("cancel")) {
+      return {
+        responseText: "Okay, let me know if you change your mind or need help with anything else.",
+        nextState: ChatState.AWAITING_USER_INPUT
+      };
+    }
+  }
+
+  return {
+    responseText: "I'm here to help with your health concerns or appointment bookings. You can also say 'book appointment' or mention a symptom like 'fever'.",
+    nextState: ChatState.AWAITING_USER_INPUT
   };
-
-  const processUserMessage = (text: string): { responseText: string; nextState?: ChatState; options?: ChatOption[] } => {
-    const lowerText = text.toLowerCase();
-    
-    for (const disease of MAJOR_DISEASES_DATA) {
-      if (disease.keywords.some(keyword => lowerText.includes(keyword.toLowerCase()))) {
-        const matchedKeyword = disease.keywords.find(kw => lowerText.includes(kw.toLowerCase())) || "your stated concern";
-        let responseText = disease.response.replace("[matched keyword]", matchedKeyword);
-        
-        if (!tentativeAppointmentDetails?.symptom && initialData?.symptom !== matchedKeyword) {
-            setTentativeAppointmentDetails(prev => ({...prev, symptom: matchedKeyword }));
-        }
-
-        if (disease.offerBooking) {
-            return {
-                responseText,
-                nextState: ChatState.AWAITING_USER_INPUT,
-                options: [{ text: "Yes, help me book an appointment", action: () => {
-                    const bookingResponse = handleBookingIntent(matchedKeyword);
-                    addMessageToChat(bookingResponse.responseText, 'bot', bookingResponse.options);
-                    if(bookingResponse.nextState) setCurrentChatState(bookingResponse.nextState);
-                }}]
-            };
-        }
-        return { responseText, nextState: ChatState.AWAITING_USER_INPUT };
-      }
-    }
-
-    for (const disease of MINOR_DISEASES_DATA) {
-      if (disease.keywords.some(keyword => lowerText.includes(keyword.toLowerCase()))) {
-         if (!tentativeAppointmentDetails?.symptom && !initialData?.symptom) {
-            const matchedKeyword = disease.keywords.find(kw => lowerText.includes(kw.toLowerCase()));
-            if(matchedKeyword) setTentativeAppointmentDetails(prev => ({...prev, symptom: matchedKeyword }));
-        }
-        return { responseText: disease.response, nextState: ChatState.AWAITING_USER_INPUT };
-      }
-    }
-    
-    const details = {...(tentativeAppointmentDetails || {}), ...(initialData || {})};
-
-    if (lowerText.includes("hello") || lowerText.includes("hi") || lowerText.includes("hey")) {
-      return { responseText: "Hello there! How can I help you today?", nextState: ChatState.AWAITING_USER_INPUT };
-    }
-
-    if (lowerText.includes("book appointment") || lowerText.includes("schedule visit") || lowerText.includes("make an appointment")) {
-      return handleBookingIntent();
-    }
-    
-    let detailProvided = false;
-    if (!details.name && (lowerText.includes("my name is") || (lowerText.split(" ").length < 5 && messages.length > 1 && messages[messages.length-1].text.toLowerCase().includes("name")))) {
-        const nameGuess = lowerText.replace("my name is", "").trim();
-        setTentativeAppointmentDetails(prev => ({...prev, name: nameGuess}));
-        detailProvided = true;
-    }
-    if (!details.email && (lowerText.includes("my email is") || lowerText.includes("@"))) {
-        setTentativeAppointmentDetails(prev => ({...prev, email: text.trim()}));
-        detailProvided = true;
-    }
-    if (!details.phone && (lowerText.includes("my phone is") || lowerText.match(/\d{10}/))) {
-         setTentativeAppointmentDetails(prev => ({...prev, phone: text.trim()}));
-        detailProvided = true;
-    }
-    if (!details.symptom && (lowerText.includes("my symptom is") || lowerText.includes("experiencing"))) {
-        setTentativeAppointmentDetails(prev => ({...prev, symptom: text.replace("my symptom is", "").replace("experiencing","").trim()}));
-        detailProvided = true;
-    }
-
-    if(detailProvided) {
-        return { responseText: "Thanks for the information. If all details are provided (Name, Email, Phone, Symptom), you can now say 'book appointment' or use the button to proceed.", nextState: ChatState.AWAITING_USER_INPUT };
-    }
-
-    if (lowerText.includes("nearby hospital") || lowerText.includes("hospital near me") || lowerText.includes("hospitals")) {
-      const hospitalList = MOCK_NEARBY_HOSPITALS.map(h => `- ${h.name} (${h.address})`).join('\n');
-      return { responseText: `Here are some hospitals in the general area:\n${hospitalList}\nFor precise locations and services, please check online map services or use the 'Nearby Hospitals' button.`, nextState: ChatState.AWAITING_USER_INPUT };
-    }
-    
-    if (currentChatState === ChatState.AWAITING_PAYMENT_CONFIRMATION) {
-        if (lowerText.includes("yes") || lowerText.includes("proceed") || lowerText.includes("ok") || lowerText.includes("pay")) {
-             handlePayment(); 
-             return { responseText: "Great! Proceeding to payment..." }; 
-        } else if (lowerText.includes("no") || lowerText.includes("cancel")) {
-            return { responseText: "Okay, let me know if you change your mind or need help with anything else.", nextState: ChatState.AWAITING_USER_INPUT };
-        }
-    }
-
-    return { responseText: "I'm sorry, I can help with health queries, booking appointments, or finding nearby hospitals. How can I assist you? You can also use the quick action buttons below.", nextState: ChatState.AWAITING_USER_INPUT };
-  };
-
+};
 
   const handleSendMessage = async (messageText?: string) => {
     const textToSend = messageText || userInput;
@@ -207,9 +280,9 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
     setUserInput('');
     setIsBotTyping(true);
     
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsBotTyping(false);
-      const botLogicResponse = processUserMessage(textToSend);
+      const botLogicResponse = await processUserMessage(textToSend);
       addMessageToChat(botLogicResponse.responseText, 'bot', botLogicResponse.options);
       
       if (botLogicResponse.nextState) {
@@ -217,7 +290,7 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
       } else {
         setCurrentChatState(ChatState.AWAITING_USER_INPUT);
       }
-    }, 700 + Math.random() * 600); // Randomized delay for bot "thinking"
+    }, 700 + Math.random() * 600);
   };
   
   const handlePayment = async () => {
@@ -273,7 +346,7 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
         );
         setCurrentChatState(ChatState.APPOINTMENT_BOOKED_SUCCESS);
         setIsLoading(false);
-        setTimeout(onClose, 100); // Increased timeout to allow reading the detailed message
+        setTimeout(onClose, 100);
       },
       onFailure: (errorMsg) => {
         addMessageToChat(`Payment failed: ${errorMsg}. Please try again or contact support.`, 'bot');
@@ -295,7 +368,7 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
   };
 
   const handleBookAppointmentClick = () => {
-    addMessageToChat("Book Appointment", 'user'); // Simulate user typing this
+    addMessageToChat("Book Appointment", 'user');
     setIsBotTyping(true);
     setTimeout(() => {
         setIsBotTyping(false);

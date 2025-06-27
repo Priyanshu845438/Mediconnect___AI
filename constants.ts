@@ -17,8 +17,6 @@ export const APP_NAME = "MediConnect AI";
 export const NAV_LINKS: PageLink[] = [
   { name: 'Home', path: '/' },
   { name: 'About Us', path: '/about' },
-  { name: 'Services', path: '/services' },
-  { name: 'Blog', path: '/blog' },
   { name: 'Contact', path: '/contact' },
   { name: 'Login', path: '/login' },
 ];
@@ -44,34 +42,14 @@ export const PATIENT_SIDEBAR_LINKS: SidebarLink[] = [
 ];
 
 
-export const MOCK_SERVICES: Service[] = [
-  { id: '1', name: 'General Consultation', description: 'Comprehensive health check-ups and consultations with experienced doctors.', icon: React.createElement(UserGroupIcon, { className: "w-12 h-12 text-primary" }) },
-  { id: '2', name: 'Cardiology', description: 'Specialized heart care, diagnostics, and treatment plans.', icon: React.createElement(HeartIcon, { className: "w-12 h-12 text-primary" }) },
-  { id: '3', name: 'Diagnostics Lab', description: 'Advanced lab testing for accurate diagnosis.', icon: React.createElement(BeakerIcon, { className: "w-12 h-12 text-primary" }) },
-  { id: '4', name: 'Mental Wellness', description: 'Counseling and therapy sessions for mental well-being.', icon: React.createElement(ChatBubbleLeftEllipsisIcon, { className: "w-12 h-12 text-primary" }) },
-  { id: '5', name: 'Pediatrics', description: 'Specialized care for infants, children, and adolescents.', icon: React.createElement(BuildingOffice2Icon, { className: "w-12 h-12 text-primary" }) }, // Changed icon for variety
-  { id: '6', name: 'Emergency Care', description: '24/7 emergency services for urgent medical needs.', icon: React.createElement(ClipboardDocumentListIcon, { className: "w-12 h-12 text-primary" }) },
-];
-
-export const MOCK_BLOG_POSTS: BlogPost[] = [
-  { id: '1', title: 'The Importance of Regular Health Check-ups', excerpt: 'Discover why routine health screenings are crucial for early detection and prevention of diseases...', imageUrl: 'https://picsum.photos/400/250?random=1', author: 'Dr. Emily Carter', date: 'October 26, 2023' },
-  { id: '2', title: 'Managing Stress in a Fast-Paced World', excerpt: 'Learn effective strategies to cope with stress and improve your overall well-being...', imageUrl: 'https://picsum.photos/400/250?random=2', author: 'Dr. Johnathan Lee', date: 'October 22, 2023' },
-  { id: '3', title: 'Nutritional Tips for a Healthier Heart', excerpt: 'Explore dietary changes you can make to promote cardiovascular health and reduce risks...', imageUrl: 'https://picsum.photos/400/250?random=3', author: 'Dr. Sarah Miller', date: 'October 18, 2023' },
-];
-
-export const MOCK_NEARBY_HOSPITALS = [
-    { name: "City General Hospital", address: "123 Main St, Anytown", phone: "555-1234" },
-    { name: "County Medical Center", address: "456 Oak Ave, Anytown", phone: "555-5678" },
-    { name: "St. Luke's Healthcare", address: "789 Pine Rd, Anytown", phone: "555-9012" },
-];
 
 export const RAZORPAY_KEY_ID: string = 'rzp_test_1DP5mmOlF5G5ag';
 export const APPOINTMENT_FEE = 100000; 
-export const WHATSAPP_SUPPORT_NUMBER = '+12345678900'; 
+export const WHATSAPP_SUPPORT_NUMBER = '+916206698170'; 
 
 export const CONTACT_DETAILS = {
-  address: "123 Health Drive, Wellness City, HC 45678",
-  phone: "+1 (555) 123-4567",
+  address: "Parul University, Limda, Waghodia, Vadodara, Gujarat 391760",
+  phone: "+916206698170",
   email: "contact@mediconnect.ai",
   mapIcon: React.createElement(MapPinIcon, { className: "w-6 h-6 text-primary" }),
   phoneIcon: React.createElement(PhoneIcon, { className: "w-6 h-6 text-primary" }),
@@ -98,7 +76,6 @@ export const STATIC_CONTENT = {
   ]
 };
 
-// SVG Icons
 export { 
     HeartIcon, UserGroupIcon, BeakerIcon, ClipboardDocumentListIcon, ChatBubbleLeftEllipsisIcon, 
     MapPinIconSolid, CheckCircleIcon, CalendarDaysIcon, ArrowRightOnRectangleIcon, UserCircleIcon,

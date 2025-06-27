@@ -23,22 +23,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onOpenChatbot }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onOpenChatbot(formData);
-    // Optionally clear form:
-    // setFormData({ name: '', email: '', phone: '', symptom: '' }); 
+
   };
 
   return (
     <div className="relative bg-gradient-to-br from-primary via-teal-700 to-teal-900 text-white py-24 md:py-40 overflow-hidden">
-      {/* Background Overlay */}
       <div className="absolute inset-0 bg-black opacity-25"></div>
 
-      {/* Decorative Graphics Layer - NEW */}
       <div className="absolute inset-0 z-[5]" aria-hidden="true">
-        {/* Sweeping Bands */}
         <svg
           className="absolute -right-1/4 sm:-right-1/3 md:-right-1/2 top-0 h-full w-auto transform translate-x-1/3 -translate-y-1/4 opacity-15 sm:opacity-20"
-          width="1000" // Increased width for larger sweep
-          height="800" // Increased height
+          width="1000"
+          height="800"
           viewBox="0 0 1000 800"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -47,8 +43,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onOpenChatbot }) => {
           <path d="M-150 750C100 550 250 150 550 350C850 550 1000 250 1250 50" stroke="white" strokeWidth="120" strokeLinecap="round" strokeOpacity="0.5"/>
         </svg>
 
-        {/* Soft Orbs/Particles Cluster */}
-        <div className="absolute top-1/4 left-4 sm:left-10 md:left-20 transform -translate-y-1/2 animate-spin_slow"> {/* Added animate-spin_slow */}
+        <div className="absolute top-1/4 left-4 sm:left-10 md:left-20 transform -translate-y-1/2 animate-spin_slow">
         </div>
          <div className="absolute bottom-10 right-10 sm:bottom-20 sm:right-20 opacity-20 hidden md:block">
           <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -58,10 +53,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onOpenChatbot }) => {
             <path d="M106.066 43.934 L127.279 22.721 M43.934 106.066 L22.721 127.279 M43.934 43.934 L22.721 22.721 M106.066 106.066 L127.279 127.279" stroke="white" strokeOpacity="0.15" strokeWidth="1"/>
           </svg>
         </div>
-
       </div>
 
-      {/* Content Container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="md:pr-8">
@@ -71,7 +64,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onOpenChatbot }) => {
             >
               Welcome to {APP_NAME}
             </h1>
-            <p className="text-lg sm:text-xl text-white opacity-95 mb-8"> {/* Increased opacity */}
+            <p className="text-lg sm:text-xl text-white opacity-95 mb-8"> 
               Your journey to better health starts here. Get instant assistance from our AI assistant, or book an appointment with our specialists.
             </p>
             <button 
@@ -82,7 +75,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onOpenChatbot }) => {
               Chat with {APP_NAME} Now
             </button>
           </div>
-          <div className="bg-white/80 backdrop-blur-xl p-8 md:p-10 rounded-xl shadow-2xl border border-primary/30"> {/* Enhanced form container */}
+          <div className="bg-white/80 backdrop-blur-xl p-8 md:p-10 rounded-xl shadow-2xl border border-primary/30">
             <h2 className="text-3xl font-bold text-dark mb-8 text-center">Quick Enquiry</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

@@ -1,5 +1,3 @@
-// Using Heroicons (MIT License) - https://heroicons.com
-// This comment is added to help with potential cache busting.
 import React from 'react';
 
 export const HeartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -124,17 +122,3 @@ export const SparklesIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => 
     <path fillRule="evenodd" d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 01.75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 019.75 22.5a.75.75 0 01-.75-.75c0-5.056 2.383-9.555 6.084-12.436A6.75 6.75 0 019.315 7.584ZM15 15.75a1.5 1.5 0 100-3 1.5 1.5 0 000 3Zm1.72-2.303a.75.75 0 10-1.06-1.06 3.75 3.75 0 01-5.304-5.304.75.75 0 10-1.06-1.06 5.25 5.25 0 007.424 7.424Z" clipRule="evenodd"/>
   </svg>
 );
-
-// HomeIcon was previously aliased to HomeIconSolid. To ensure no conflicts and correct export:
-// If HomeIcon was meant to be distinct, it needs its own definition.
-// If constants.ts is using HomeIconSolid, the original HomeIconSolid should be exported as such.
-// The previous code had `export { HomeIcon as HomeIconSolid };` which means `HomeIcon` was defined as `HomeIconSolidOriginal`.
-// I'll assume `HomeIconSolid` is the intended name for that specific solid home icon.
-// The `HomeIcon` name here is generic and was likely the same as `HomeIconSolidOriginal`.
-// `constants.ts` refers to `HomeIconSolid`.
-// So, the re-export as `HomeIconSolid` is correct for `HomeIconSolidOriginal`.
-
-// List of actual exports from this file:
-// HeartIcon, UserGroupIcon, BeakerIcon, ClipboardDocumentListIcon, ChatBubbleLeftEllipsisIcon, MapPinIcon, CheckCircleIcon, PaperAirplaneIcon, ArrowRightOnRectangleIcon, CalendarDaysIcon, UserCircleIcon, Cog6ToothIcon, DocumentTextIcon, HomeIconSolid (aliased from HomeIconSolidOriginal), ListBulletIcon, ChatBubbleLeftRightIcon, ClockIcon, SparklesIcon.
-// Note: `MapPinIcon` is defined here as a SOLID icon. If there's an OUTLINE `MapPinIcon` in `OutlineIcons.tsx`, ensure namespacing or distinct naming if imported together. `constants.ts` imports `MapPinIconSolid` from here and `MapPinIcon` from `OutlineIcons.tsx` which is correct.
-// The `HomeIcon` function definition was named `HomeIcon`, then exported as `HomeIconSolid`. This is fine. I've renamed the internal const to `HomeIconSolidOriginal` for clarity on what's being aliased.

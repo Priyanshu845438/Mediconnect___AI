@@ -5,26 +5,20 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
-import ServicesPage from './pages/ServicesPage';
-import BlogsPage from './pages/BlogsPage';
 import ContactPage from './pages/ContactPage';
-import LoginPage from './pages/LoginPage'; // New Unified Login Page
+import LoginPage from './pages/LoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ChatbotPopup from './components/ChatbotPopup.tsx';
 import { UserRole, InitialFormData, Appointment } from './types';
 import { getCurrentUserRole, setCurrentUserRole as saveUserRole, clearCurrentUserRole, getCurrentPatientId, setCurrentPatientId as savePatientId, clearCurrentPatientId, getAppointments } from './services/localStorageService';
-// Removed APP_NAME import as it's not used directly here
 
-// Layouts
 import PatientLayout from './layouts/PatientLayout';
 import AdminLayout from './layouts/AdminLayout';
 
-// Patient Pages
 import PatientDashboardPage from './pages/patient/PatientDashboardPage';
 import PatientBookingsPage from './pages/patient/PatientBookingsPage';
 import PatientReportsPage from './pages/patient/PatientReportsPage';
 
-// Admin Pages (Placeholders for now, Dashboard is primary)
 const AdminManagePatientsPage: React.FC = () => <div className="p-8"><h1 className="text-2xl font-bold">Manage Patients (Placeholder)</h1></div>;
 const AdminSiteSettingsPage: React.FC = () => <div className="p-8"><h1 className="text-2xl font-bold">Site Settings (Placeholder)</h1></div>;
 
@@ -33,7 +27,7 @@ interface ProtectedRouteProps {
   userRole: UserRole;
   allowedRoles: UserRole[];
   children: React.ReactElement<{ onLogout?: () => void }>; 
-  onLogout: () => void; // Changed: onLogout now takes no arguments
+  onLogout: () => void;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ userRole, allowedRoles, children, onLogout }) => {
@@ -47,7 +41,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ userRole, allowedRoles,
   if (!allowedRoles.includes(userRole)) {
     return null;
   }
-  // Clone the child (layout component) and pass the onLogout prop
   return React.cloneElement(children, { onLogout });
 };
 
@@ -59,7 +52,6 @@ const AppContent: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   
   const location = useLocation();
-  // const navigateHook = useNavigate(); // No longer needed for handleLogout directly
 
   const isDashboardRoute = location.pathname.startsWith('/admin/') || location.pathname.startsWith('/patient/');
 
@@ -86,7 +78,6 @@ const AppContent: React.FC = () => {
     clearCurrentPatientId();
     setCurrentUserRoleState(UserRole.NONE);
     setCurrentPatientIdState(null);
-    // Navigation will be handled by the component calling logout
   }, []); 
   
   const openChatbot = useCallback((formData?: InitialFormData) => {
@@ -112,8 +103,6 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage onOpenChatbot={openChatbot} />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/blog" element={<BlogsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           
           <Route 
@@ -121,7 +110,6 @@ const AppContent: React.FC = () => {
             element={currentUserRole === UserRole.NONE ? <LoginPage onLogin={handleLogin} /> : (currentUserRole === UserRole.ADMIN ? <Navigate to="/admin/dashboard" /> : <Navigate to="/patient/dashboard" />)} 
           />
 
-          {/* Admin Routes */}
           <Route 
             path="/admin" 
             element={
@@ -136,7 +124,6 @@ const AppContent: React.FC = () => {
             <Route index element={<Navigate to="dashboard" />} />
           </Route>
 
-          {/* Patient Routes */}
             <Route 
             path="/patient" 
             element={

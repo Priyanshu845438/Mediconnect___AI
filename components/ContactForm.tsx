@@ -26,12 +26,10 @@ const ContactForm: React.FC = () => {
     e.preventDefault();
     setError(null);
     setIsSubmitted(false);
-    // Simulate API call
     try {
-      // Replace with actual API call: await api.submitContactForm(formData);
       await new Promise(resolve => setTimeout(resolve, 1000)); 
       setIsSubmitted(true);
-      setFormData({ name: '', email: '', subject: '', message: '' }); // Reset form
+      setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (err) {
       setError('Failed to send message. Please try again later.');
     }

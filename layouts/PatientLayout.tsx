@@ -1,15 +1,13 @@
 
 import React from 'react';
-import { Outlet } from 'react-router-dom'; // Removed useNavigate
+import { Outlet } from 'react-router-dom';
 import PatientSidebar from '../components/patient/PatientSidebar';
-// Removed clearCurrentUserRole, clearCurrentPatientId as they are handled by the passed onLogout function
 
 interface PatientLayoutProps {
-  onLogout?: () => void; // Made onLogout optional, as it's injected by ProtectedRoute
+  onLogout?: () => void;
 }
 
 const PatientLayout: React.FC<PatientLayoutProps> = ({ onLogout }) => {
-  // Removed local handleLogout and useNavigate
   return (
     <div className="flex flex-col md:flex-row flex-grow bg-extralight"> 
       {/* Use non-null assertion as ProtectedRoute guarantees onLogout */}
