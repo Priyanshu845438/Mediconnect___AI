@@ -1,4 +1,5 @@
 
+
 export interface Appointment {
   id: string;
   name: string;
@@ -14,19 +15,6 @@ export enum UserRole {
   NONE = 'NONE',
   PATIENT = 'PATIENT',
   ADMIN = 'ADMIN',
-}
-
-export interface ChatMessage {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot' | 'system';
-  timestamp: number;
-  options?: ChatOption[];
-}
-
-export interface ChatOption {
-  text: string;
-  action: () => void;
 }
 
 export interface PageLink {
@@ -65,18 +53,10 @@ export interface InitialFormData {
   symptom: string;
 }
 
-// Grounding chunk from Gemini search
-export interface GroundingChunkWeb {
-  uri: string;
-  title: string;
-}
-export interface GroundingChunk {
-  web?: GroundingChunkWeb;
-  // Other types of chunks can be added here if needed
-}
-export interface GroundingMetadata {
-  groundingChunks?: GroundingChunk[];
-  // Other grounding metadata fields can be added here
+export interface RazorpayPaymentSuccessResponse {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
 }
 
 // For Razorpay (mocked)
@@ -89,28 +69,34 @@ export interface RazorpayOptions {
   image?: string; // URL of a logo
   order_id?: string; // If using Orders API
   handler: (response: RazorpayPaymentSuccessResponse) => void;
-  prefill?: {
+  prefill: {
     name?: string;
     email?: string;
     contact?: string;
   };
-  notes?: Record<string, string>;
+  notes?: any;
   theme?: {
     color?: string;
   };
   modal?: {
-    ondismiss?: () => void;
-    // other modal options if any
+      ondismiss: () => void;
   };
 }
 
-export interface RazorpayPaymentSuccessResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id?: string;
-  razorpay_signature?: string;
+export interface ChatOption {
+  text: string;
+  payload: string;
 }
 
-// Chatbot training data structures
+export interface ChatMessage {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot' | 'system';
+  timestamp: number;
+  options?: ChatOption[];
+  isStreaming?: boolean;
+}
+
 export interface MinorDiseaseInfo {
   keywords: string[];
   response: string;
@@ -118,6 +104,6 @@ export interface MinorDiseaseInfo {
 
 export interface MajorDiseaseInfo {
   keywords: string[];
-  response: string; // This response should strongly guide towards booking or seeing a doctor
-  offerBooking?: boolean; // Optionally, directly offer to book appointment
+  response: string;
+  offerBooking: boolean;
 }
