@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PageLink, Service, BlogPost, UserRole, SidebarLink } from './types';
+import { PageLink, UserRole, SidebarLink } from './types';
 import { 
   HeartIcon, UserGroupIcon, BeakerIcon, ClipboardDocumentListIcon, 
   ChatBubbleLeftEllipsisIcon, MapPinIcon as MapPinIconSolid, CheckCircleIcon, 
@@ -62,17 +62,17 @@ export const BOT_GREETING_MESSAGE = "Hello! I'm your MediConnect AI assistant. H
 export const STATIC_CONTENT = {
   aboutUs: {
     title: "About MediConnect AI",
-    mission: "Our mission is to provide accessible, compassionate, and high-quality healthcare to every individual. We believe in leveraging technology to enhance patient experience and outcomes.",
-    vision: "To be a leading healthcare provider recognized for clinical excellence, innovation, and patient-centered care.",
+    mission: "Our mission is to ensure that everyone has access to compassionate and top-notch healthcare. We’re all about using technology to make the patient experience better and improve outcomes.",
+    vision: "We aim to be a top healthcare provider known for our clinical excellence, innovative practices, and a strong focus on patient-centered care.",
     values: ["Compassion", "Excellence", "Integrity", "Innovation", "Teamwork"],
-    story: "Founded in 2023, MediConnect AI was born out of a desire to bridge the gap between traditional healthcare and modern technological advancements. We started as a small clinic with a big vision: to make healthcare more proactive, personalized, and convenient. Our team of dedicated professionals works tirelessly to ensure that you receive the best possible care in a comfortable and supportive environment. We are constantly evolving, adopting new technologies like our AI-powered assistant to better serve your needs.",
+    story: "Founded in 2025, MediConnect AI emerged from a genuine desire to connect traditional healthcare with the latest technological innovations. We kicked things off as a small clinic fueled by a big dream: to transform healthcare into something more proactive, personalized, and convenient. Our passionate team is dedicated to making sure you receive top-notch care in a warm and welcoming environment. We're always on the lookout for new ways to improve, like incorporating our AI-powered assistant to better meet your needs.\n\n Founded in 2025, MediConnect AI emerged from a genuine desire to connect traditional healthcare with the latest technological innovations. We kicked things off as a small clinic fueled by a big dream: to transform healthcare into something more proactive, personalized, and convenient. Our passionate team is dedicated to making sure you receive top-notch care in a warm and welcoming environment. We're always on the lookout for new ways to improve, like incorporating our AI-powered assistant to better meet your needs.",
     imageUrl: "https://picsum.photos/seed/aboutus/600/400"
   },
   whyChooseUs: [
-    { title: "Experienced Professionals", description: "Our team consists of highly skilled and experienced doctors, nurses, and support staff.", icon: React.createElement(UserGroupIcon, { className: "w-8 h-8 text-primary" }) },
-    { title: "Advanced Technology", description: "We utilize cutting-edge medical technology for accurate diagnosis and effective treatment.", icon: React.createElement(BeakerIcon, { className: "w-8 h-8 text-primary" }) },
-    { title: "Patient-Centric Care", description: "Your health and comfort are our top priorities. We provide personalized care tailored to your needs.", icon: React.createElement(HeartIcon, { className: "w-8 h-8 text-primary" }) },
-    { title: "AI-Powered Assistance", description: "Our MediConnect AI assistant provides instant support for queries and appointment scheduling.", icon: React.createElement(ChatBubbleLeftEllipsisIcon, { className: "w-8 h-8 text-primary" }) },
+    { title: "Experienced Professionals", description: "Our team is made up of talented and experienced doctors, nurses, and support staff who are dedicated to providing the best care possible.", icon: React.createElement(UserGroupIcon, { className: "w-8 h-8 text-primary" }) },
+    { title: "Advanced Technology", description: "We use the latest medical technology to ensure precise diagnoses and effective treatments.", icon: React.createElement(BeakerIcon, { className: "w-8 h-8 text-primary" }) },
+    { title: "Patient-Centric Care", description: "Your health and comfort are our main focus. We offer personalized care that’s designed just for you.", icon: React.createElement(HeartIcon, { className: "w-8 h-8 text-primary" }) },
+    { title: "AI-Powered Assistance", description: "Our MediConnect AI assistant is here to help you with your questions and to schedule appointments in a flash.", icon: React.createElement(ChatBubbleLeftEllipsisIcon, { className: "w-8 h-8 text-primary" }) },
   ]
 };
 

@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Modal from './Modal';
-import { ChatMessage, InitialFormData, Appointment, ChatOption } from '../types';
+import { ChatMessage, InitialFormData, Appointment, ChatOption, TriageReportData } from '../types';
 import { PaperAirplaneIcon } from './icons/SolidIcons';
-import { APP_NAME, APPOINTMENT_FEE, BOT_GREETING_MESSAGE, MOCKED_PATIENT_PASSWORD } from '../constants.ts';
+import { APP_NAME, APPOINTMENT_FEE, MOCKED_PATIENT_PASSWORD } from '../constants.ts';
 import { saveAppointment } from '../services/localStorageService';
 import { loadRazorpayScript, initiateRazorpayPayment } from '../services/razorpayService';
 import CalendarPicker from './CalendarPicker';
+import TriageReportCard from './TriageReportCard';
 
 interface ChatbotPopupProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ enum ConversationState {
   BOOKING_COMPLETE,
 }
 
-const API_URL = 'http://127.0.0.1:8000/checkdisease/';
+const API_URL = 'http://127.0.0.1:8000/nlp/';
 
 const isAffirmative = (text: string): boolean => {
     const lowerText = text.toLowerCase();
@@ -45,13 +46,14 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
   const [bookingDetails, setBookingDetails] = useState<Partial<InitialFormData & { bookingDate: string }>>({});
   const lastSymptomRef = useRef<string | null>(null);
 
-  const addMessageToChat = (text: string, sender: 'user' | 'bot' | 'system', options?: ChatOption[]) => {
+  const addMessageToChat = (text: string, sender: 'user' | 'bot' | 'system', options?: ChatOption[], triageReport?: TriageReportData) => {
     const newMessage: ChatMessage = {
       id: Date.now().toString() + Math.random(),
       text,
       sender,
       timestamp: Date.now(),
       options,
+      triageReport,
     };
     setMessages(prev => [...prev, newMessage]);
   };
@@ -62,49 +64,19 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
 
   useEffect(scrollToBottom, [messages, isBotTyping]);
   
-  const resetChat = useCallback(() => {
-    setMessages([]);
-    setUserInput('');
-    setIsBotTyping(false);
-    setIsLoading(false);
-    setBookingDetails(initialData || {});
-    lastSymptomRef.current = initialData?.symptom || null;
-
-    let welcomeMessage = BOT_GREETING_MESSAGE;
-    if (initialData?.name && initialData.symptom) {
-        welcomeMessage = `Hello ${initialData.name}! I'm your ${APP_NAME} assistant. I see you're interested in help regarding "${initialData.symptom}". To get a better understanding, please list all your symptoms separated by commas.`;
-    } else {
-        welcomeMessage = "Hello! I'm your AI assistant. To get started, please list your symptoms separated by commas (e.g., itching, skin rash, headache)."
-    }
-    
-    addMessageToChat(welcomeMessage, 'bot');
-    setConversationState(ConversationState.TRIAGING);
-  }, [initialData]);
-
-  useEffect(() => {
-    if (isOpen) {
-      resetChat();
-    }
-  }, [isOpen, resetChat]);
-
   const handleTriage = async (symptomText: string) => {
     setIsBotTyping(true);
     
-    // Parse symptoms: split by comma, trim, replace spaces with underscores
-    const symptoms = symptomText
-        .toLowerCase()
-        .split(',')
-        .map(s => s.trim().replace(/\s+/g, '_'))
-        .filter(s => s);
-
-    if (symptoms.length === 0) {
-        addMessageToChat("I'm sorry, I didn't catch any symptoms. Please list them separated by commas, like 'fever, headache'.", 'bot');
+    const trimmedSymptom = symptomText.trim();
+    if (trimmedSymptom.length < 3) {
+        addMessageToChat("Please provide a more detailed description of your symptoms.", 'bot');
         setIsBotTyping(false);
         setConversationState(ConversationState.TRIAGING);
         return;
     }
     
-    addMessageToChat(`Analyzing symptoms: ${symptoms.join(', ')}...`, 'system');
+    // This message was repetitive with the greeting and has been removed. The typing indicator is sufficient.
+    // addMessageToChat(`Analyzing symptom: "${trimmedSymptom}"...`, 'system');
 
     try {
         const response = await fetch(API_URL, {
@@ -113,8 +85,7 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                noofsym: symptoms.length,
-                symptoms: symptoms,
+                input_string: trimmedSymptom,
             }),
         });
         
@@ -124,43 +95,34 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ isOpen, onClose, initialDat
         }
 
         const data = await response.json();
-        const { predicteddisease, confidencescore, consultdoctor } = data;
+        const { severity, predicteddisease, confidencescore, consultdoctor } = data;
 
-        // Check for a valid response from the API before considering the symptom valid.
         if (!predicteddisease) {
             throw new Error("API returned an invalid prediction.");
         }
         
-        // --- SUCCESS ---
-        // Now that we have a valid response, we can safely store the user's input as the symptom.
         lastSymptomRef.current = symptomText;
 
-
-        const botResponse = 
-`Based on the symptoms you've provided, here is a preliminary analysis:
-
-- **Predicted Condition:** ${predicteddisease}
-- **Confidence Score:** ${confidencescore}%
-- **Recommended Specialist:** ${consultdoctor}
-
-**Disclaimer:** This is an AI-powered prediction and not a medical diagnosis. Please consult with a qualified doctor for an accurate assessment.
-
-Would you like to book an appointment with a ${consultdoctor}?`;
+        const triageData: TriageReportData = {
+          severity: severity || "Unknown",
+          predictedCondition: predicteddisease,
+          confidenceScore: confidencescore,
+          recommendedSpecialist: consultdoctor
+        };
 
         addMessageToChat(
-            botResponse, 
+            `Based on the analysis, would you like to book an appointment with a ${consultdoctor}?`, 
             'bot',
             [
                 { text: 'Yes, book now', payload: 'yes' },
                 { text: 'No, thanks', payload: 'no' }
-            ]
+            ],
+            triageData
         );
         setConversationState(ConversationState.AWAITING_BOOKING_CONFIRMATION);
 
     } catch (error) {
         console.error("Error fetching disease prediction:", error);
-        // --- FAILURE ---
-        // The user's input was not a valid symptom. Set a default reason to prevent using conversational text.
         lastSymptomRef.current = 'General Consultation';
         addMessageToChat("I'm sorry, I encountered an error while analyzing your symptoms. This could be a connection issue or the symptoms might not be in our database. Please try rephrasing, or I can help you book a general consultation. Would you like to proceed?", 'bot', [
                 { text: 'Yes, book a consultation', payload: 'yes' },
@@ -171,6 +133,43 @@ Would you like to book an appointment with a ${consultdoctor}?`;
         setIsBotTyping(false);
     }
   };
+
+  const resetChat = useCallback(async () => {
+    setMessages([]);
+    setUserInput('');
+    setIsBotTyping(false);
+    setIsLoading(false);
+    setBookingDetails(initialData || {});
+    lastSymptomRef.current = initialData?.symptom || null;
+
+    let welcomeMessage: string;
+    const hasInitialSymptom = initialData?.symptom && initialData.symptom.trim().length > 0;
+
+    if (initialData?.name && hasInitialSymptom) {
+        welcomeMessage = `Hello ${initialData.name}! I'm your ${APP_NAME} assistant. I see you're experiencing: "${initialData.symptom}". Let me analyze that for you.`;
+    } else if (hasInitialSymptom) {
+        welcomeMessage = `Hello! I'm your ${APP_NAME} assistant. One moment while I analyze the symptom you provided: "${initialData.symptom}".`;
+    } else {
+        welcomeMessage = "Hello! I'm your AI assistant. Please describe your symptoms in a sentence. For example, 'I have a bad cough and a slight fever'.";
+    }
+
+    addMessageToChat(welcomeMessage, 'bot');
+
+    if (hasInitialSymptom) {
+        setConversationState(ConversationState.TRIAGING);
+        // Wait for the welcome message to be visible before starting analysis
+        setTimeout(() => handleTriage(initialData.symptom!), 500);
+    } else {
+        setConversationState(ConversationState.TRIAGING);
+    }
+  }, [initialData]);
+
+  useEffect(() => {
+    if (isOpen) {
+      resetChat();
+    }
+  }, [isOpen, resetChat]);
+
 
   const askForNextDetail = (currentDetails: Partial<InitialFormData & { bookingDate: string }>) => {
     if (!currentDetails.name) {
@@ -363,6 +362,7 @@ Would you like to book an appointment with a ${consultdoctor}?`;
               : 'bg-white text-dark rounded-bl-lg shadow-sm'
           }`}
         >
+            {msg.triageReport && <TriageReportCard data={msg.triageReport} />}
             <p className="whitespace-pre-wrap">{msg.text}</p>
           {msg.options && (
             <div className="mt-3 border-t border-gray-300/50 pt-2 flex flex-wrap gap-2">
@@ -416,7 +416,7 @@ Would you like to book an appointment with a ${consultdoctor}?`;
             type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            placeholder={conversationState > ConversationState.AWAITING_BOOKING_CONFIRMATION ? 'Type your answer...' : 'Type your symptoms...'}
+            placeholder={conversationState > ConversationState.AWAITING_BOOKING_CONFIRMATION ? 'Type your answer...' : 'Describe your symptoms...'}
             disabled={isLoading || isBotTyping || conversationState === ConversationState.BOOKING_COMPLETE}
             className="flex-grow w-full px-4 py-2.5 text-gray-900 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-75 transition-shadow"
             autoFocus

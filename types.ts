@@ -1,5 +1,6 @@
 
 
+
 export interface Appointment {
   id: string;
   name: string;
@@ -88,6 +89,13 @@ export interface ChatOption {
   payload: string;
 }
 
+export interface TriageReportData {
+  severity: string;
+  predictedCondition: string;
+  confidenceScore: string;
+  recommendedSpecialist: string;
+}
+
 export interface ChatMessage {
   id: string;
   text: string;
@@ -95,6 +103,7 @@ export interface ChatMessage {
   timestamp: number;
   options?: ChatOption[];
   isStreaming?: boolean;
+  triageReport?: TriageReportData;
 }
 
 export interface MinorDiseaseInfo {
