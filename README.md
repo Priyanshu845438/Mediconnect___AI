@@ -4,7 +4,7 @@
 
 Whether you're looking to **get preliminary diagnosis**, **ask medical queries**, or **access general health advice**, this project provides a smart, accessible solution through a beautiful and responsive interface.
 
----
+----
 
 ## 🧠 Key Features
 
