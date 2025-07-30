@@ -1,4 +1,4 @@
-# 🩺 MediConnect AI – AI-Powered Medical Assistant (React + Node.js + OpenAI)
+# 🩺 MediConnect AI – AI-Powered Medical Assistant (React + Typescript + OpenAI)
 
 **MediConnect AI** is an intelligent, full-stack healthcare assistant powered by **OpenAI GPT APIs**, built to assist patients, doctors, and healthcare providers with accurate, fast, and conversational responses.
 
